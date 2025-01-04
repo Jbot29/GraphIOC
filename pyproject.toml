@@ -1,0 +1,28 @@
+[project]
+name = "GraphIOC"
+version = "0.0.1"
+authors = [
+  { name="Jeremy Schwartz", email="jerschwartz@gmail.com" },
+]
+description = "GraphIOC"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "networkx",
+  "boto3",
+  "pydantic"
+]
+
+[project.urls]
+Homepage = "https://github.com/pypa/sampleproject"
+Issues = "https://github.com/pypa/sampleproject/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
