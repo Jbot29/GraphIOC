@@ -31,13 +31,11 @@ class GraphIOCState(BaseModel):
             raise ValueError('db_conn must be a valid sqlite3.Connection')
         return v    
     
-def init(session,db_name):
+def init(session,db_conn):
 
-    conn = sqlite3.connect(db_name)
-
-    create_tables(conn)
+    create_tables(db_conn)
     
-    return GraphIOCState(session=session,db_conn=conn,G=nx.DiGraph(),models_map=BASE_MODEL_MAP)
+    return GraphIOCState(session=session,db_conn=db_conn,G=nx.DiGraph(),models_map=BASE_MODEL_MAP)
 
 
 def add_node(state,node):

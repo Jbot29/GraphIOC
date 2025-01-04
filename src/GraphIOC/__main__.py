@@ -6,6 +6,10 @@ import GraphIOC
 import sqlite3
 from .db import create_tables
 
+import logging
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
 #python -m a
 
 
@@ -30,7 +34,7 @@ def import_plan(profile,db_conn,user_infra_module):
     print(imports)
     return
 
-def import_run(profile,db_conn,user_infra_module):
+def import_run(profile,db_path,user_infra_module):
     print("Plan: Import")
 
     session = boto3.session.Session(profile_name=profile)
@@ -40,10 +44,12 @@ def import_run(profile,db_conn,user_infra_module):
     user_infra_module.infra_import(session,imports)
     print(imports)
 
-    GraphIOC.run_import(session,db_conn,imports)
+    GraphIOC.run_import(session,db_path,imports)
     return
 
-def plan(profile,db_path,user_infra_module):
+def plan(profile,db_conn,user_infra_module):
+    logger.info(f"GraphIOC: Plan")
+
     session = boto3.session.Session(profile_name=profile)
 
     gioc = GraphIOC.init(session,db_conn)
@@ -63,7 +69,7 @@ def main():
     parser.add_argument("profile", help="Aws Profile to use")
     parser.add_argument("--infra_file", help="Path to the user's infrastructure definition file")
     parser.add_argument('--import_file',help="Path to the user's import definition file")
-    parser.add_argument('version',help="Version")    
+    #parser.add_argument('version',help="Version")    
     parser.add_argument("command", choices=["plan","run","diagram"], help="The command to run (e.g., plan)")
 
 
@@ -87,13 +93,13 @@ def main():
     diagram_path = user_module_path.replace(".py","")
 
     db_conn = sqlite3.connect(db_path)
-    create_tables(db_conn)
+    
     # Execute the specified command
     if args.command == "plan":
         print("Plan")
         
-        if args.import_file:
-            return import_plan(args.profile,db_conn,user_infra_module)
+        # if args.import_file:
+        #     return import_plan(args.profile,db_conn,user_infra_module)
         
 
         plan(args.profile,db_conn,user_infra_module)

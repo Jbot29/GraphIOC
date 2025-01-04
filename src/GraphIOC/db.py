@@ -78,8 +78,8 @@ def db_create_node(conn,node):
         print(f"Error: {e}")
     
     finally:
-        # Close the connection
-        conn.close()
+        #conn.close()
+        pass
 
 def get_node_by_id(conn,name):
     cursor = conn.cursor()
@@ -145,7 +145,8 @@ def add_edge(source_name, destination_name, edge,weight=None):
         print(f"Error: {e}")
     
     finally:
-        conn.close()
+        #conn.close()
+        pass
 
 
 def name_exists(name):
@@ -162,7 +163,7 @@ def name_exists(name):
     exists = cursor.fetchone()[0]
     
     # Close the connection
-    conn.close()
+    #conn.close()
     
     # Return True if name exists, otherwise False
     return exists == 1
@@ -185,7 +186,8 @@ def db_get_rows_not_in_list(conn, table_name, id_list):
 
     finally:
         # Close the connection
-        conn.close()
+        #conn.close()
+        pass
 
 
 # delete row
@@ -222,7 +224,7 @@ def db_delete_row(db_conn, table_name, row_id):
     
     finally:
         # Close the connection
-        if conn:
-            conn.close()
+        #conn.close()
+        pass
 
             
