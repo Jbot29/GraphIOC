@@ -9,7 +9,7 @@ from .db import create_tables
 import logging
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(encoding='utf-8', level=logging.INFO)
 #python -m a
 
 
@@ -37,7 +37,7 @@ def import_plan(profile,db_conn,user_infra_module):
 def import_run(profile,db_path,user_infra_module):
     print("Plan: Import")
 
-    session = boto3.session.Session(profile_name=profile)
+    session = boto3.session.Session(profile_name=profile,region_name='us-east-1')
 
     imports = []
     

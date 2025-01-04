@@ -5,9 +5,11 @@ from botocore.exceptions import ClientError
 from pydantic import BaseModel,constr
 from typing import Optional,List
 
+from .types import AwsName
+
 class IAMRole(BaseModel):
     g_id: str
-    name: constr(pattern=r'^[A-Za-z0-9+=,.@_-]+$')
+    name: AwsName
     policy: dict
     arn: Optional[str] = None    
 
@@ -27,7 +29,26 @@ class IAMRole(BaseModel):
         pass
     def delete(self,session,G):
         pass
-    
+
+
+class IAMRolePolicyEdge(BaseModel):
+    role_g_id: str
+    lambda_g_id: str
+    policy_arn: str
+
+    def exists(self,session):
+        pass
+
+    def create(self,session,G):
+        pass
+
+    def update(self,session,G):
+        pass
+    def delete(self,session,G):
+        pass
+
+class IAMRolePolicyLambda(IAMRolePolicyEdge):
+    policy_arn: str = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
 
     
 def role_exists(session,role_name):
@@ -52,13 +73,7 @@ def role_create(session,role_name,policy_document):
     )
     role_arn = create_role_response['Role']['Arn']
 
-    # Attach a basic execution policy to the role
-    print(f"Attaching AWSLambdaBasicExecutionRole policy to {role_name}")
-    iam_client.attach_role_policy(
-        RoleName=role_name,
-        PolicyArn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-    )    
-    pass
+
 
 def role_get(role_name):
     role_response = iam_client.get_role(RoleName=role_name)
@@ -68,4 +83,26 @@ def role_get(role_name):
     pass
 
 
+
+def role_has_policy(session,role_name,policy_arn):
+    iam_client = session.client('iam')
+    # List all attached policies for the given role
+    response = iam_client.list_attached_role_policies(RoleName=role_name)
     
+    # Extract the ARNs of the attached policies
+    attached_policies = [policy['PolicyArn'] for policy in response['AttachedPolicies']]
+    
+    # Check if the given policy ARN is already attached
+    return policy_arn in attached_policies    
+    
+#
+"""
+    # Attach a basic execution policy to the role
+    print(f"Attaching AWSLambdaBasicExecutionRole policy to {role_name}")
+    iam_client.attach_role_policy(
+        RoleName=role_name,
+        PolicyArn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    )    
+    pass
+
+"""
