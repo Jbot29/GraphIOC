@@ -118,7 +118,7 @@ def get_edge_by_id(conn,s_name,d_name):
         if result:
             return result
         else:
-            print(f"Node '{name}' does not exist.")
+            print(f"Node '{s_name}' does not exist.")
             return None
     
     except sqlite3.IntegrityError as e:

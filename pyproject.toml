@@ -1,10 +1,10 @@
 [project]
-name = "GraphIOC"
+name = "GraphIaC"
 version = "0.0.1"
 authors = [
   { name="Jeremy Schwartz", email="jerschwartz@gmail.com" },
 ]
-description = "GraphIOC"
+description = "GraphIaC"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [

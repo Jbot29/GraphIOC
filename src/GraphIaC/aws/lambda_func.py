@@ -2,13 +2,18 @@ import os
 import zipfile
 import boto3
 from botocore.exceptions import ClientError
-from pydantic import BaseModel,constr
+from pydantic import BaseModel,constr,Field
 from typing import Optional,List
 
 
 from .types import AwsName
+from .iam_role import IAMRolePolicyEdge
 
 #TODO fix region
+
+
+class IAMRolePolicyLambdaEdge(IAMRolePolicyEdge):
+    policy_arn: str = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
 
 class LambdaZipFile(BaseModel):
     g_id: str
@@ -16,7 +21,7 @@ class LambdaZipFile(BaseModel):
     runtime: str # = 'python3.9'
     handler:str # = 'lambda_function.lambda_handler'  # fileName.functionName
     zip_file_path: str
-    role_g_id: str
+    #role_g_id: str
     description: Optional[str] = Field("No description", description="A description of the lambda") 
     timeout: Optional[int] = 15
     memory_size: Optional[int] = 128
@@ -29,8 +34,19 @@ class LambdaZipFile(BaseModel):
 
 
     def create(self,session,G):
-        lambda_create(session,self.function_name,self.runtime,self.role_arn,self.handler,self.description,self.timeout,self.memory_size,self.publish):
-        pass
+        print("CREATE")
+        
+        incoming_edges = G.in_edges(self.g_id)
+        for ie in incoming_edges:
+            print(ie)
+            edge = G[ie[0]][ie[1]]
+            print(edge)
+            edge_data = edge['data']
+            print(isinstance(edge_data,IAMRolePolicyLambdaEdge))
+
+            
+        return
+        return lambda_create(session,self.name,self.runtime,self.role_arn,self.handler,self.description,self.timeout,self.memory_size,self.publish)
 
     def update(self,session,G):
         pass
@@ -70,11 +86,39 @@ def lambda_create(session,function_name,runtime,role_arn,handler,description,tim
         },
         Description=description,
         Timeout=timeout,
-        MemorySize=memory_size
+        MemorySize=memory_size,
         Publish=publish
     )
     
 """
+
+def update_lambda_code(lambda_client, function_name, zip_file_path):
+    try:
+        # Open the new zip file to update the Lambda function
+        with open(zip_file_path, 'rb') as zip_file:
+            response = lambda_client.update_function_code(
+                FunctionName=function_name,
+                ZipFile=zip_file.read()  # Upload the new zip file content
+            )
+        
+        # Print the response from Lambda after updating the function
+        print("Lambda function updated successfully!")
+        print("Response:", response)
+
+    except Exception as e:
+        print("Error updating Lambda function:", e)
+
+# Initialize the Lambda client
+lambda_client = boto3.client('lambda', region_name='us-east-1')
+
+# Specify the Lambda function name and path to the new zip file
+function_name = 'my-lambda-function'
+zip_file_path = 'lambda_code.zip'
+
+# Call the update function
+update_lambda_code(lambda_client, function_name, zip_file_path)
+
+
 # ---------------------------------------
 # 2. Zip your Lambda function code
 # ---------------------------------------

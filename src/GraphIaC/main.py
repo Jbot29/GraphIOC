@@ -10,13 +10,13 @@ import sqlite3
 
 from .db import create_tables,get_node_by_id,get_edge_by_id,db_create_node,db_get_rows_not_in_list,db_delete_row
 
-from GraphIOC.aws.route53 import HostedZone
-from GraphIOC.aws.certificate import Certificate,CertificateHostedZoneEdge,get_dns_validation
+from GraphIaC.aws.route53 import HostedZone
+from GraphIaC.aws.certificate import Certificate,CertificateHostedZoneEdge,get_dns_validation
 
-from GraphIOC.model_map import BASE_MODEL_MAP
+from GraphIaC.model_map import BASE_MODEL_MAP
 
 
-class GraphIOCState(BaseModel):
+class GraphIaCState(BaseModel):
     session: Any = Field(default=None, exclude=True)  
     db_conn: Any = Field(default=None, exclude=True)  
     G: Any = Field(default=None, exclude=True)
@@ -35,7 +35,7 @@ def init(session,db_conn):
 
     create_tables(db_conn)
     
-    return GraphIOCState(session=session,db_conn=db_conn,G=nx.DiGraph(),models_map=BASE_MODEL_MAP)
+    return GraphIaCState(session=session,db_conn=db_conn,G=nx.DiGraph(),models_map=BASE_MODEL_MAP)
 
 
 def add_node(state,node):
@@ -105,8 +105,10 @@ def plan(state):
             #get edge_id
             edge_node_db_row = get_node_by_id(state.db_conn,e)
             #print(f"\t{edge}")
-            edge_db_row = get_edge_by_id(state.db_conn,pn_db_row[0],edge_node_db_row[0])
-            print(edge_db_row)
+            print("EN:",edge_node_db_row)
+            if edge_node_db_row:
+                edge_db_row = get_edge_by_id(state.db_conn,pn_db_row[0],edge_node_db_row[0])
+                print(edge_db_row)
 
 
     #check for deleted items

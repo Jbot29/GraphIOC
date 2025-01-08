@@ -33,7 +33,7 @@ class IAMRole(BaseModel):
 
 class IAMRolePolicyEdge(BaseModel):
     role_g_id: str
-    lambda_g_id: str
+    node_g_id: str
     policy_arn: str
 
     def exists(self,session):
@@ -47,8 +47,7 @@ class IAMRolePolicyEdge(BaseModel):
     def delete(self,session,G):
         pass
 
-class IAMRolePolicyLambda(IAMRolePolicyEdge):
-    policy_arn: str = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
+
 
     
 def role_exists(session,role_name):

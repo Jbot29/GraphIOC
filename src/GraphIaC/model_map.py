@@ -4,10 +4,13 @@ from GraphIOC.aws.certificate import Certificate,CertificateHostedZoneEdge,get_d
 from GraphIOC.aws.s3 import S3Bucket
 from GraphIOC.aws.iam_role import IAMRole
 
+from GraphIOC.aws.lambda_func import LambdaZipFile
+
 BASE_MODEL_MAP = {
     "HostedZone": HostedZone,
     "Certificate": Certificate,
     "CertificateHostedZoneEdge": CertificateHostedZoneEdge,
     "S3Bucket": S3Bucket,
-    "IAMRole": IAMRole
+    "IAMRole": IAMRole,
+    "LambdaZipFile": LambdaZipFile
 }

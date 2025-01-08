@@ -2,7 +2,7 @@ import argparse
 import importlib.util
 import os
 import boto3
-import GraphIOC
+import GraphIaC
 import sqlite3
 from .db import create_tables
 
@@ -52,11 +52,11 @@ def plan(profile,db_conn,user_infra_module):
 
     session = boto3.session.Session(profile_name=profile)
 
-    gioc = GraphIOC.init(session,db_conn)
+    gioc = GraphIaC.init(session,db_conn)
 
     user_infra_module.infra(gioc)
 
-    changes = GraphIOC.plan(gioc)
+    changes = GraphIaC.plan(gioc)
 
     print(changes)
 
@@ -115,11 +115,11 @@ def main():
 
         session = boto3.session.Session(profile_name=args.profile)
 
-        gioc = GraphIOC.init(session,db_conn)
+        gioc = GraphIaC.init(session,db_conn)
 
         user_infra_module.infra(gioc)
 
-        updates = GraphIOC.run(gioc)
+        updates = GraphIaC.run(gioc)
 
         print(updates)
         return
@@ -128,11 +128,11 @@ def main():
         print("Diagram")
         session = boto3.session.Session(profile_name=args.profile)
 
-        gioc = GraphIOC.init(session,db_path)
+        gioc = GraphIaC.init(session,db_path)
         user_infra_module.infra(gioc)
         print(gioc.G)
         
-        GraphIOC.export_graph(gioc, diagram_path)
+        GraphIaC.export_graph(gioc, diagram_path)
         #GraphIOC.plan(gioc)
     else:
         print(f"Unknown command: {args.command}")
