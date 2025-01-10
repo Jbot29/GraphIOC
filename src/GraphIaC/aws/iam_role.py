@@ -25,6 +25,14 @@ class IAMRole(BaseModel):
         return role_create(session,self.name,self.policy)
 
 
+    def read(self,session):
+        role_arn,policies = role_read(session,role_name)
+
+        if not role_arn or not policies:
+            return False
+        
+        return IAMRole(g_id=self.g_id, name=self.name, policy=policies, arn=role_arn)
+    
     def update(self,session,G):
         pass
     def delete(self,session,G):
@@ -74,12 +82,27 @@ def role_create(session,role_name,policy_document):
 
 
 
-def role_get(role_name):
-    role_response = iam_client.get_role(RoleName=role_name)
-    print(f"Role '{role_name}' already exists.")
-    role_arn = role_response['Role']['Arn']
-    
-    pass
+def role_read(session,role_name):
+    iam_client = session.client('iam')    
+
+    try:
+        # Fetch the IAM role details using the role name
+        response = iam_client.get_role(RoleName=name)
+
+        # Extract the policy and ARN from the response
+        role_arn = response["Role"]["Arn"]
+
+        # Fetch the policies attached to this role
+        policies_response = iam_client.list_attached_role_policies(RoleName=name)
+        policies = {policy["PolicyName"]: policy["PolicyArn"] for policy in policies_response["AttachedPolicies"]}
+        
+        # Create an IAMRole instance with the fetched details
+        return role_arn,policies
+
+    except ClientError as e:
+        # Handle error if role doesn't exist or if there's an issue
+        print(f"Error: {e}")
+        return None,None
 
 
 

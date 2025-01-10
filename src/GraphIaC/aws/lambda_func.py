@@ -35,15 +35,18 @@ class LambdaZipFile(BaseModel):
 
     def create(self,session,G):
         print("CREATE")
+        role_edge = None
         
         incoming_edges = G.in_edges(self.g_id)
         for ie in incoming_edges:
-            print(ie)
             edge = G[ie[0]][ie[1]]
-            print(edge)
             edge_data = edge['data']
-            print(isinstance(edge_data,IAMRolePolicyLambdaEdge))
+            if isinstance(edge_data,IAMRolePolicyLambdaEdge):
+                role_edge = edge_data
 
+        print(role_edge)
+        print(role_edge.role_g_id)
+        print(G.nodes[role_edge.role_g_id]['data'])
             
         return
         return lambda_create(session,self.name,self.runtime,self.role_arn,self.handler,self.description,self.timeout,self.memory_size,self.publish)

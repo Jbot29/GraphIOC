@@ -1,0 +1,3 @@
+strict digraph "" {
+	"GraphIOC-Test-Bucket"	[data="g_id='GraphIOC-Test-Bucket' bucket_name='grphi-test-bucket-1' region='us-east-2'"];
+}

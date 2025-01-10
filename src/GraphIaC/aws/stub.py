@@ -8,6 +8,9 @@ class StubNode(BaseModel):
 
     def create(self,session,G):
         pass
+    
+    def read(self,session):
+        pass
 
     def update(self,session,G):
         pass

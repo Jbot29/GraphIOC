@@ -76,13 +76,16 @@ def plan(state):
         pn = state.G.nodes[node]['data']
         print(pn.g_id)
 
-        if not pn.exists(state.session):
+        current_state = pn.read(state.session)
+        
+        if not current_state:
             print("Doesn't exist in AWS")
             create_op = Operation(operation=OperationType.CREATE,obj=pn)
             plan_ops.append(create_op)
             continue
         
-        print("Exists, ")
+
+        
 
         #it exists in aws does it exist in db and is it different
         pn_db_row = get_node_by_id(state.db_conn,pn.g_id)
@@ -91,6 +94,7 @@ def plan(state):
             #doesn't exist in db, maybe allow import
             continue
 
+        #diff with saved state
         
         print(pn_db_row)
         db_nodes_seen.append(str(pn_db_row[0]))
@@ -134,6 +138,7 @@ def run(state):
             print(f"Create: {change.obj}")
             result = change.obj.create(state.session,state.G)
             print(result)
+            #need to read crrent version and save that
             db_create_node(state.db_conn,change.obj)
 
         elif change.operation == OperationType.DELETE:
