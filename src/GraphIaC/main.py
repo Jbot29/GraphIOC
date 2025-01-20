@@ -50,11 +50,12 @@ class OperationType(Enum):
     CREATE = "create"
     UPDATE = "update"
     DELETE = "delete"
+    IMPORT = "import"
     
 class Operation(BaseModel):
     operation: OperationType
     obj: Any = Field(default=None, exclude=True)
-
+    
 
 
 def load_model_from_db(state,obj_name,obj_data):
@@ -76,7 +77,7 @@ def plan(state):
         pn = state.G.nodes[node]['data']
         print(pn.g_id)
 
-        current_state = pn.read(state.session)
+        current_state = pn.read(state.session,state.G)
         
         if not current_state:
             print("Doesn't exist in AWS")
@@ -91,15 +92,28 @@ def plan(state):
         pn_db_row = get_node_by_id(state.db_conn,pn.g_id)
 
         if not pn_db_row:
-            #doesn't exist in db, maybe allow import
-            continue
+            #add to db
+            create_op = Operation(operation=OperationType.IMPORT,obj=pn)
+            plan_ops.append(create_op)
 
-        #diff with saved state
-        
-        print(pn_db_row)
+
         db_nodes_seen.append(str(pn_db_row[0]))
-
         pn_last = load_model_from_db(state,pn_db_row[2],pn_db_row[3])
+        
+        #diff with saved state
+        print("DIFF")
+        if pn.diff(state.session,state.G,current_state) or pn.diff(state.session,state.G,pn_last):
+            print("Update needed")
+            update_op = Operation(operation=OperationType.UPDATE,obj=pn)
+            plan_ops.append(update_op)
+
+            
+        state.G.nodes[node]['data'] = current_state
+        print(current_state)
+        print(pn_db_row)
+
+
+        
         
         for e in state.G.neighbors(node):
             
@@ -138,9 +152,16 @@ def run(state):
             print(f"Create: {change.obj}")
             result = change.obj.create(state.session,state.G)
             print(result)
+            print(change.obj)
             #need to read crrent version and save that
             db_create_node(state.db_conn,change.obj)
 
+        elif change.operation == OperationType.IMPORT:
+            #add the obj to the db
+            db_create_node(state.db_conn,change.obj)            
+        elif change.operation == OperationType.UPDATE:
+            print(f"Update: {change.obj}")
+            change.obj.update(state.session,state.G)
         elif change.operation == OperationType.DELETE:
             print(f"Delete: {change.obj}")
             result = change.obj.delete(state.session,state.G)

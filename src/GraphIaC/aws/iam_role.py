@@ -22,14 +22,21 @@ class IAMRole(BaseModel):
 
     def create(self,session,G):
         print(f"{self.__class__.__name__}: Create {self}")
-        return role_create(session,self.name,self.policy)
+        role_arn = role_create(session,self.name,self.policy)
 
-
-    def read(self,session):
-        role_arn,policies = role_read(session,role_name)
-
-        if not role_arn or not policies:
+        if not role_arn:
             return False
+
+        self.arn = role_arn
+        return True
+
+
+    def read(self,session,G):
+        #cloned = self.copy(deep=True)
+        role_arn,policies = role_read(session,self.name)
+        print("READ IAM ROLE",role_arn,policies)
+        if not role_arn:
+            return None
         
         return IAMRole(g_id=self.g_id, name=self.name, policy=policies, arn=role_arn)
     
@@ -38,6 +45,9 @@ class IAMRole(BaseModel):
     def delete(self,session,G):
         pass
 
+    def diff(self,session,G,diff_object):
+        return False
+    
 
 class IAMRolePolicyEdge(BaseModel):
     role_g_id: str
@@ -79,6 +89,7 @@ def role_create(session,role_name,policy_document):
         Description='Role for Lambda execution',
     )
     role_arn = create_role_response['Role']['Arn']
+    return role_arn
 
 
 
@@ -87,13 +98,13 @@ def role_read(session,role_name):
 
     try:
         # Fetch the IAM role details using the role name
-        response = iam_client.get_role(RoleName=name)
+        response = iam_client.get_role(RoleName=role_name)
 
         # Extract the policy and ARN from the response
         role_arn = response["Role"]["Arn"]
 
         # Fetch the policies attached to this role
-        policies_response = iam_client.list_attached_role_policies(RoleName=name)
+        policies_response = iam_client.list_attached_role_policies(RoleName=role_name)
         policies = {policy["PolicyName"]: policy["PolicyArn"] for policy in policies_response["AttachedPolicies"]}
         
         # Create an IAMRole instance with the fetched details

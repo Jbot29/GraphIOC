@@ -70,7 +70,7 @@ def main():
     parser.add_argument("--infra_file", help="Path to the user's infrastructure definition file")
     parser.add_argument('--import_file',help="Path to the user's import definition file")
     #parser.add_argument('version',help="Version")    
-    parser.add_argument("command", choices=["plan","run","diagram"], help="The command to run (e.g., plan)")
+    parser.add_argument("command", choices=["plan","run","diagram","import"], help="The command to run (e.g., plan)")
 
 
     args = parser.parse_args()
@@ -85,6 +85,8 @@ def main():
     else:
         print("Infra or import file needed")
         return
+
+
     
     user_infra_module = load_user_infra_module(user_module_path)
     
@@ -98,24 +100,19 @@ def main():
     if args.command == "plan":
         print("Plan")
         
-        # if args.import_file:
-        #     return import_plan(args.profile,db_conn,user_infra_module)
-        
-
         plan(args.profile,db_conn,user_infra_module)
 
         return
 
 
-    elif args.command == "run":
+    session = boto3.session.Session(profile_name=args.profile)
+    gioc = GraphIaC.init(session,db_conn)    
+    if args.command == "run":
         print("Run")
         
-        if args.import_file:
-            return import_run(args.profile,db_conn,user_infra_module)
 
-        session = boto3.session.Session(profile_name=args.profile)
 
-        gioc = GraphIaC.init(session,db_conn)
+
 
         user_infra_module.infra(gioc)
 
@@ -124,9 +121,13 @@ def main():
         print(updates)
         return
 
+    elif args.command == "import":
+        print("Import")
+        user_infra_module.infra(gioc)
+       
     elif args.command == "diagram":
         print("Diagram")
-        session = boto3.session.Session(profile_name=args.profile)
+
 
         gioc = GraphIaC.init(session,db_path)
         user_infra_module.infra(gioc)

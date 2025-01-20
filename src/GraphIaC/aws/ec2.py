@@ -1,30 +1,6 @@
 #Graph IOC
 
-import boto3
 
-from pydantic import BaseModel
-from typing import Optional,List
-from botocore.exceptions import ClientError
-
-"""
-
-ec2 = session.client('ec2',region_name='us-east-1')
-elb = session.client('elbv2',region_name='us-east-1')
-ecs = session.client('ecs',region_name='us-east-1')
-"""
-
-class SecurityGroup(BaseModel):
-    id: str
-    desc: str
-    vpc_id: str
-    aws_id: Optional[str] = None
-
-class ALB(BaseModel):
-    id: str
-    desc: str
-    subnets: List[str]
-    sg_id: str
-    arn: Optional[str] = None
 
 
 class TargetGroup(BaseModel):
@@ -109,25 +85,6 @@ def sg_ingress(security_group_id):
 
     print(response)
 
-
-def create_alb(alb):
-    response = elb.create_load_balancer(
-        Name=alb.id,
-        Subnets=alb.subnets,
-        SecurityGroups=[alb.sg_id],
-        Scheme='internet-facing',
-        Tags=[
-        {
-            'Key': 'Name',
-            'Value': 'my-alb'
-        }
-        ],
-        Type='application',
-        IpAddressType='ipv4'
-    )
-
-    load_balancer_arn = response['LoadBalancers'][0]['LoadBalancerArn']
-    print(f"ALB ARN: {load_balancer_arn}")
 
 
 

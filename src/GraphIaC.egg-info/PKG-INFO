@@ -14,12 +14,14 @@ Requires-Dist: networkx
 Requires-Dist: boto3
 Requires-Dist: pydantic
 
-# GraphIOC
+# GraphIaC
 
 ## Motivation
-* Motivation
 
-IOC tools today are centered around building out a service or component. Setting up a DB, some type of compute, etc. Which is great but I think the easier parts of the problem.
+Infrastructure as code has been a great step forward for building and managing cloud infrastructure. 
+
+That beind said, the current tools leave much to be desired. While these tools have provided a way to describe infrastructure
+in code, they have failed to make it easy to advance the ease of creating infrastructure past that.
 
 The real pain is the connections or edges between things. I need compute that can has permissions and can talk to a db. These are hard to define and manage.
 
